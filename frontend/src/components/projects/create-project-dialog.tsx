@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useMutation } from 'convex/react';
 import { useUser } from '@clerk/nextjs';
 import { Sparkles } from 'lucide-react';
-import { api } from '@/../convex/_generated/api';
+import { api } from '@convex/_generated/api';
 import { toast } from 'sonner';
 import {
   Dialog,
