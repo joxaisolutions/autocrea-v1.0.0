@@ -1,5 +1,5 @@
 # AUTOCREA Backend - Production Dockerfile
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -7,13 +7,13 @@ WORKDIR /app
 
 # Copy package files
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production && npm cache clean --force
 
 # Development dependencies for building
 FROM base AS builder
 WORKDIR /app
 COPY backend/package*.json ./
-RUN npm ci
+RUN npm ci && npm cache clean --force
 
 COPY backend/ ./
 RUN npm run build
@@ -23,10 +23,11 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=8000
 
 # Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 autocrea
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs autocrea
 
 # Copy built application
 COPY --from=builder --chown=autocrea:nodejs /app/dist ./dist
@@ -37,6 +38,4 @@ USER autocrea
 
 EXPOSE 8000
 
-ENV PORT=8000
-
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/index.js"]
