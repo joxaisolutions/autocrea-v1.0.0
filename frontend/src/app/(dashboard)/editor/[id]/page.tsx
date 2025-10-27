@@ -364,7 +364,7 @@ export default function EditorPage({ params }: { params: { id: string } }) {
                           sandbox="allow-scripts allow-modals"
                           title="Preview"
                         />
-                      ) : selectedFile?.language === 'javascript' || selectedFile?.language === 'typescript' || selectedFile?.language === 'typescriptreact' ? (
+                      ) : selectedFile?.language === 'javascript' || selectedFile?.language === 'typescript' ? (
                         <div className="flex items-center justify-center h-full bg-gray-50">
                           <div className="text-center max-w-md p-6">
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">

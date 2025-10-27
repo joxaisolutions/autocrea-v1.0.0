@@ -7,6 +7,18 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 
+// Middleware
+import { errorHandler } from '@/middleware/errorHandler';
+import { apiLimiter } from '@/middleware/rateLimit';
+
+// Routes
+import projectsRouter from '@/routes/projects';
+import filesRouter from '@/routes/files';
+import aiRouter from '@/routes/ai';
+import deployRouter from '@/routes/deploy';
+import codeRouter from '@/routes/code';
+import usersRouter from '@/routes/users';
+
 // Load environment variables
 dotenv.config();
 
@@ -33,6 +45,7 @@ app.use(compression()); // Compress responses
 app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
 app.use(morgan('combined')); // HTTP request logger
+app.use(apiLimiter); // Rate limiting
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -44,13 +57,14 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// API routes
+// API info endpoint
 app.get('/api', (req: Request, res: Response) => {
   res.json({
     message: 'AUTOCREA Backend API v1.0.0',
     version: '1.0.0',
     endpoints: {
       health: '/health',
+      users: '/api/users',
       projects: '/api/projects',
       files: '/api/files',
       code: '/api/code',
@@ -59,6 +73,14 @@ app.get('/api', (req: Request, res: Response) => {
     },
   });
 });
+
+// API Routes
+app.use('/api/users', usersRouter);
+app.use('/api/projects', projectsRouter);
+app.use('/api/files', filesRouter);
+app.use('/api/code', codeRouter);
+app.use('/api/ai', aiRouter);
+app.use('/api/deploy', deployRouter);
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
@@ -84,14 +106,8 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// Error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : err.message,
-  });
-});
+// Error handler (must be last)
+app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 8000;

@@ -16,7 +16,7 @@ export default function ProjectsPage() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Mock projects - will be replaced with real data from Convex
-  const projects = [];
+  const projects: any[] = [];
 
   return (
     <div className="space-y-6">
