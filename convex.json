@@ -1,6 +1,3 @@
 {
-  "project": "admired-curlew-59",
-  "deployment": "dev:admired-curlew-59",
-  "functions": "convex/",
-  "generateCommonJSApi": false
+  "deployment": "dev:admired-curlew-59"
 }

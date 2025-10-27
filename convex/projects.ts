@@ -65,13 +65,27 @@ export const createProject = mutation({
     userId: v.string(),
     framework: v.union(
       v.literal("react"),
+      v.literal("next"),
       v.literal("nextjs"),
       v.literal("vue"),
-      v.literal("html"),
-      v.literal("node")
+      v.literal("nuxt"),
+      v.literal("angular"),
+      v.literal("svelte"),
+      v.literal("node"),
+      v.literal("express"),
+      v.literal("vanilla"),
+      v.literal("html")
     ),
+    language: v.optional(v.union(
+      v.literal("javascript"),
+      v.literal("typescript"),
+      v.literal("python"),
+      v.literal("html")
+    )),
     template: v.optional(v.string()),
-    isPublic: v.boolean(),
+    isPublic: v.optional(v.boolean()),
+    aiGenerated: v.optional(v.boolean()),
+    aiPrompt: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -83,7 +97,7 @@ export const createProject = mutation({
       framework: args.framework,
       template: args.template,
       status: "active",
-      isPublic: args.isPublic,
+      isPublic: args.isPublic || false,
       tags: [],
       createdAt: now,
       updatedAt: now,

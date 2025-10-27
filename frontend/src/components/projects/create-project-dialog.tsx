@@ -1,7 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useMutation } from 'convex/react';
+import { useUser } from '@clerk/nextjs';
 import { Sparkles } from 'lucide-react';
+import { api } from '@/../convex/_generated/api';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +53,9 @@ const languages: { value: ProjectLanguage; label: string }[] = [
 ];
 
 export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogProps) {
+  const { user } = useUser();
+  const createProject = useMutation(api.projects.createProject);
+
   const [mode, setMode] = useState<'manual' | 'ai'>('manual');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -58,25 +65,40 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreate = async () => {
-    setIsCreating(true);
-    // TODO: Implement project creation logic
-    console.log('Creating project:', {
-      name,
-      description,
-      framework,
-      language,
-      mode,
-      aiPrompt: mode === 'ai' ? aiPrompt : undefined,
-    });
+    if (!user) {
+      toast.error('You must be logged in to create a project');
+      return;
+    }
 
-    setTimeout(() => {
-      setIsCreating(false);
-      onOpenChange(false);
+    setIsCreating(true);
+
+    try {
+      const projectId = await createProject({
+        name,
+        description: description || undefined,
+        framework,
+        language,
+        userId: user.id,
+        aiGenerated: mode === 'ai',
+        aiPrompt: mode === 'ai' ? aiPrompt : undefined,
+      });
+
+      toast.success('Project created successfully!');
+
       // Reset form
       setName('');
       setDescription('');
       setAiPrompt('');
-    }, 2000);
+      setIsCreating(false);
+      onOpenChange(false);
+
+      // TODO: Redirect to project editor
+      // router.push(`/editor/${projectId}`);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      toast.error('Failed to create project. Please try again.');
+      setIsCreating(false);
+    }
   };
 
   return (
