@@ -66,11 +66,11 @@ const nextConfig = {
       };
     }
 
-    // Monaco Editor worker support
-    config.module.rules.push({
-      test: /\.worker\.js$/,
-      use: { loader: 'worker-loader' },
-    });
+    // Monaco Editor worker support - commented out as worker-loader is not installed
+    // config.module.rules.push({
+    //   test: /\.worker\.js$/,
+    //   use: { loader: 'worker-loader' },
+    // });
 
     return config;
   },
