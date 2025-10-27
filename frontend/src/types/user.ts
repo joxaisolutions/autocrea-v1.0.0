@@ -1,4 +1,4 @@
-export type UserPlan = 'free' | 'pro' | 'enterprise';
+export type UserPlan = 'free-trial' | 'creator' | 'pro' | 'enterprise';
 
 export interface User {
   id: string;
@@ -19,11 +19,13 @@ export interface PlanLimits {
     collaboration: boolean;
     gitIntegration: boolean;
     prioritySupport: boolean;
+    customDomain: boolean;
+    analytics: boolean;
   };
 }
 
 export const PLAN_LIMITS: Record<UserPlan, PlanLimits> = {
-  free: {
+  'free-trial': {
     maxProjects: 3,
     maxAIRequests: 100,
     maxStorage: 500 * 1024 * 1024, // 500MB
@@ -32,17 +34,34 @@ export const PLAN_LIMITS: Record<UserPlan, PlanLimits> = {
       collaboration: false,
       gitIntegration: false,
       prioritySupport: false,
+      customDomain: false,
+      analytics: false,
+    },
+  },
+  creator: {
+    maxProjects: 10,
+    maxAIRequests: 500,
+    maxStorage: 5 * 1024 * 1024 * 1024, // 5GB
+    features: {
+      deployment: true,
+      collaboration: false,
+      gitIntegration: true,
+      prioritySupport: false,
+      customDomain: false,
+      analytics: true,
     },
   },
   pro: {
     maxProjects: -1, // unlimited
-    maxAIRequests: 1000,
-    maxStorage: 10 * 1024 * 1024 * 1024, // 10GB
+    maxAIRequests: 2000,
+    maxStorage: 20 * 1024 * 1024 * 1024, // 20GB
     features: {
       deployment: true,
-      collaboration: false,
-      gitIntegration: false,
+      collaboration: true,
+      gitIntegration: true,
       prioritySupport: true,
+      customDomain: true,
+      analytics: true,
     },
   },
   enterprise: {
@@ -54,6 +73,8 @@ export const PLAN_LIMITS: Record<UserPlan, PlanLimits> = {
       collaboration: true,
       gitIntegration: true,
       prioritySupport: true,
+      customDomain: true,
+      analytics: true,
     },
   },
 };

@@ -191,7 +191,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {/* Free Plan */}
             <div className="glass rounded-2xl p-8 border border-electric-500/10">
               <h3 className="text-2xl font-bold mb-2">Free Trial</h3>
@@ -223,7 +223,42 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Pro Plan */}
+            {/* Creator Plan */}
+            <div className="glass rounded-2xl p-8 border border-electric-500/10">
+              <h3 className="text-2xl font-bold mb-2">Creator</h3>
+              <p className="text-gray-300 mb-6">For indie developers</p>
+              <div className="mb-8">
+                <span className="text-5xl font-bold">$29</span>
+                <span className="text-gray-300">/month</span>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>10 projects</span>
+                </li>
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>500 AI requests/month</span>
+                </li>
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>5GB storage</span>
+                </li>
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>Git integration</span>
+                </li>
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>Analytics dashboard</span>
+                </li>
+              </ul>
+              <Link href="/sign-up" className="btn-outline w-full block text-center">
+                Get Started
+              </Link>
+            </div>
+
+            {/* Pro Plan - Popular */}
             <div className="glass rounded-2xl p-8 border-2 border-electric-500 relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-electric-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                 Popular
@@ -231,7 +266,7 @@ export default function LandingPage() {
               <h3 className="text-2xl font-bold mb-2">Pro</h3>
               <p className="text-gray-300 mb-6">For serious developers</p>
               <div className="mb-8">
-                <span className="text-5xl font-bold">$19</span>
+                <span className="text-5xl font-bold">$79</span>
                 <span className="text-gray-300">/month</span>
               </div>
               <ul className="space-y-4 mb-8">
@@ -241,15 +276,19 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>1000 AI requests/month</span>
+                  <span>2000 AI requests/month</span>
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>10GB storage</span>
+                  <span>20GB storage</span>
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>Advanced deployment</span>
+                  <span>Team collaboration</span>
+                </li>
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>Custom domains</span>
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -266,8 +305,7 @@ export default function LandingPage() {
               <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
               <p className="text-gray-300 mb-6">For teams & companies</p>
               <div className="mb-8">
-                <span className="text-5xl font-bold">$99</span>
-                <span className="text-gray-300">/month</span>
+                <span className="text-5xl font-bold">Custom</span>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start">
@@ -280,7 +318,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <span>100GB storage</span>
+                  <span>100GB+ storage</span>
                 </li>
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -289,6 +327,10 @@ export default function LandingPage() {
                 <li className="flex items-start">
                   <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
                   <span>Dedicated support</span>
+                </li>
+                <li className="flex items-start">
+                  <ArrowRight className="h-5 w-5 text-electric-500 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>SLA guarantee</span>
                 </li>
               </ul>
               <Link href="/sign-up" className="btn-outline w-full block text-center">

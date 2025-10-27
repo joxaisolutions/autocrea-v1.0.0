@@ -125,10 +125,72 @@ button:hover {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AUTOCREA App</title>
+    <title>AUTOCREA Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-center;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 500px;
+        text-align: center;
+      }
+      h1 {
+        color: #667eea;
+        margin-bottom: 20px;
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px;
+        transition: all 0.3s;
+      }
+      button:hover {
+        background: #764ba2;
+        transform: scale(1.05);
+      }
+      .counter {
+        font-size: 48px;
+        color: #667eea;
+        margin: 20px 0;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div class="container">
+      <h1>🚀 Welcome to AUTOCREA</h1>
+      <p>AI-Powered Web Development Platform</p>
+      <div class="counter" id="counter">0</div>
+      <button onclick="increment()">Click Me!</button>
+      <button onclick="reset()">Reset</button>
+    </div>
+    <script>
+      let count = 0;
+      function increment() {
+        count++;
+        document.getElementById('counter').textContent = count;
+      }
+      function reset() {
+        count = 0;
+        document.getElementById('counter').textContent = count;
+      }
+    </script>
   </body>
 </html>`,
   'package.json': `{
@@ -268,12 +330,95 @@ export default function EditorPage({ params }: { params: { id: string } }) {
                   />
                 </TabsContent>
                 <TabsContent value="preview" className="flex-1 m-0 bg-white">
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <p className="text-gray-600 mb-4">Preview coming soon...</p>
-                      <p className="text-sm text-gray-400">
-                        Live preview will be available after backend integration
-                      </p>
+                  <div className="h-full flex flex-col">
+                    <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <span className="text-sm text-gray-600 font-mono">
+                          preview://localhost:3000
+                        </span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          // Reload preview
+                          const iframe = document.querySelector('#preview-frame') as HTMLIFrameElement;
+                          if (iframe) iframe.src = iframe.src;
+                        }}
+                        className="text-gray-600 hover:text-gray-900"
+                      >
+                        Refresh
+                      </Button>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      {selectedFile?.language === 'html' || selectedFile?.path.endsWith('.html') ? (
+                        <iframe
+                          id="preview-frame"
+                          srcDoc={code}
+                          className="w-full h-full border-0"
+                          sandbox="allow-scripts allow-modals"
+                          title="Preview"
+                        />
+                      ) : selectedFile?.language === 'javascript' || selectedFile?.language === 'typescript' || selectedFile?.language === 'typescriptreact' ? (
+                        <div className="flex items-center justify-center h-full bg-gray-50">
+                          <div className="text-center max-w-md p-6">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                              <Play className="h-8 w-8 text-blue-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              JavaScript/TypeScript Preview
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                              To preview React/JS files, they need to be bundled and executed.
+                              This will be available after backend integration.
+                            </p>
+                            <pre className="text-left bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-auto max-h-64">
+                              {code}
+                            </pre>
+                          </div>
+                        </div>
+                      ) : selectedFile?.language === 'css' ? (
+                        <div className="flex items-center justify-center h-full bg-white">
+                          <div className="text-center max-w-2xl p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                              CSS Preview
+                            </h3>
+                            <div className="border-2 border-gray-200 rounded-lg p-6">
+                              <style>{code}</style>
+                              <div className="space-y-4">
+                                <div className="sample-box p-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded">
+                                  Sample styled element
+                                </div>
+                                <div className="sample-text">Sample text with your CSS applied</div>
+                                <button className="sample-button px-4 py-2 rounded">Sample Button</button>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-4">
+                              Preview shows how your CSS affects sample elements
+                            </p>
+                          </div>
+                        </div>
+                      ) : selectedFile?.language === 'markdown' ? (
+                        <div className="h-full overflow-auto bg-white">
+                          <div className="max-w-4xl mx-auto p-8 prose prose-lg">
+                            <div dangerouslySetInnerHTML={{ __html: code.replace(/\n/g, '<br>') }} />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full bg-gray-50">
+                          <div className="text-center">
+                            <p className="text-gray-600 mb-2">Preview not available for this file type</p>
+                            <p className="text-sm text-gray-400">
+                              Supported: HTML, CSS, Markdown
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </TabsContent>
