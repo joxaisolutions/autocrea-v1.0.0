@@ -84,17 +84,105 @@ app.use('/api/deploy', deployRouter);
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
-  console.log(`Client connected: ${socket.id}`);
+  console.log(`✓ Client connected: ${socket.id}`);
 
-  socket.on('disconnect', () => {
-    console.log(`Client disconnected: ${socket.id}`);
+  let terminalSessionId: string | null = null;
+
+  // Create terminal session
+  socket.on('terminal:create', (data: { userId: string; projectId?: string; cwd?: string }) => {
+    try {
+      const { terminalManager } = require('./services/terminalService');
+
+      terminalSessionId = socket.id;
+      const session = terminalManager.createSession(
+        terminalSessionId,
+        data.userId,
+        data.projectId,
+        data.cwd
+      );
+
+      // Listen for terminal output
+      terminalManager.on(`output:${terminalSessionId}`, (output: any) => {
+        socket.emit('terminal:output', output);
+      });
+
+      terminalManager.on(`exit:${terminalSessionId}`, (exitData: any) => {
+        socket.emit('terminal:exit', exitData);
+      });
+
+      terminalManager.on(`error:${terminalSessionId}`, (errorData: any) => {
+        socket.emit('terminal:error', errorData);
+      });
+
+      socket.emit('terminal:ready', { sessionId: terminalSessionId });
+      console.log(`✓ Terminal session created: ${terminalSessionId}`);
+    } catch (error: any) {
+      console.error('Error creating terminal:', error);
+      socket.emit('terminal:error', { error: error.message });
+    }
   });
 
-  // Terminal events
-  socket.on('terminal:command', (data) => {
-    console.log('Terminal command:', data);
-    // TODO: Handle terminal command execution
-    socket.emit('terminal:output', { output: 'Command received\n', stream: 'stdout' });
+  // Execute command in terminal
+  socket.on('terminal:command', (data: { command: string }) => {
+    if (!terminalSessionId) {
+      socket.emit('terminal:error', { error: 'No terminal session' });
+      return;
+    }
+
+    try {
+      const { terminalManager } = require('./services/terminalService');
+      const success = terminalManager.executeCommand(terminalSessionId, data.command);
+
+      if (!success) {
+        socket.emit('terminal:error', { error: 'Failed to execute command' });
+      }
+    } catch (error: any) {
+      console.error('Error executing command:', error);
+      socket.emit('terminal:error', { error: error.message });
+    }
+  });
+
+  // Send input to terminal
+  socket.on('terminal:input', (data: { input: string }) => {
+    if (!terminalSessionId) {
+      return;
+    }
+
+    try {
+      const { terminalManager } = require('./services/terminalService');
+      terminalManager.sendInput(terminalSessionId, data.input);
+    } catch (error: any) {
+      console.error('Error sending input:', error);
+    }
+  });
+
+  // Resize terminal
+  socket.on('terminal:resize', (data: { cols: number; rows: number }) => {
+    if (!terminalSessionId) {
+      return;
+    }
+
+    try {
+      const { terminalManager } = require('./services/terminalService');
+      terminalManager.resizeTerminal(terminalSessionId, data.cols, data.rows);
+    } catch (error: any) {
+      console.error('Error resizing terminal:', error);
+    }
+  });
+
+  // Client disconnect
+  socket.on('disconnect', () => {
+    console.log(`✗ Client disconnected: ${socket.id}`);
+
+    if (terminalSessionId) {
+      try {
+        const { terminalManager } = require('./services/terminalService');
+        terminalManager.killSession(terminalSessionId);
+        console.log(`✓ Terminal session killed: ${terminalSessionId}`);
+      } catch (error: any) {
+        console.error('Error killing terminal session:', error);
+      }
+    }
   });
 });
 
