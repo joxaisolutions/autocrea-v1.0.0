@@ -1,10 +1,9 @@
 # Netlify Configuration for AUTOCREA Frontend
-# Base directory is 'frontend' since we have a monorepo structure
+# Monorepo structure - frontend deployment
 
 [build]
-  base = "frontend"
-  command = "npm install && npm run build"
-  publish = ".next"
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/.next"
 
 [build.environment]
   NODE_VERSION = "20"
@@ -36,7 +35,3 @@
   for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
-
-# Next.js Plugin
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
