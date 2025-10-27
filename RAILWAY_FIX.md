@@ -162,3 +162,44 @@ Si el problema persiste después de estos fixes:
 
 **Última actualización**: 2025-01-27
 **Status**: Fixes aplicados, listo para re-deploy
+
+---
+
+## 🔄 Update 2: package-lock.json Issue
+
+### ❌ Segundo Error:
+```
+npm error The `npm ci` command can only install with an existing package-lock.json or
+npm error npm-shrinkwrap.json with lockfileVersion >= 1
+```
+
+### ✅ Solución:
+Cambio de `npm ci` a `npm install` en el Dockerfile:
+
+**Razón:**
+- `npm ci` requiere package-lock.json (más rápido pero estricto)
+- `npm install` genera package-lock.json si no existe (más flexible)
+- Para primera vez deployment, npm install es mejor
+
+**Cambios en Dockerfile:**
+```dockerfile
+# Antes:
+RUN npm ci --only=production
+
+# Después:
+RUN npm install --production
+```
+
+**Trade-offs:**
+- ✅ Más flexible, funciona sin package-lock.json
+- ✅ Genera package-lock.json automáticamente
+- ⚠️ Ligeramente más lento que npm ci
+- ⚠️ Puede tener variaciones de versiones (mitigado con package.json correcto)
+
+**Para futuros deployments:**
+Una vez que funcione, considera commitear el package-lock.json generado para usar npm ci en el futuro (más rápido y determinístico).
+
+---
+
+**Última actualización**: 2025-01-27 (Update 2)
+**Próximo deployment**: Debería funcionar ✅

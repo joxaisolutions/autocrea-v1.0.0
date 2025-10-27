@@ -7,13 +7,13 @@ WORKDIR /app
 
 # Copy package files
 COPY backend/package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --production && npm cache clean --force
 
 # Development dependencies for building
 FROM base AS builder
 WORKDIR /app
 COPY backend/package*.json ./
-RUN npm ci && npm cache clean --force
+RUN npm install && npm cache clean --force
 
 COPY backend/ ./
 RUN npm run build
