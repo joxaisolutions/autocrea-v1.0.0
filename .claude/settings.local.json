@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build\"\n- Removed @netlify/plugin-nextjs to avoid conflicts\n- Changed publish path to \"frontend/.next\"\n\nThis ensures:\n✓ npm install runs in correct directory (frontend/)\n✓ All 330+ packages are installed\n✓ Correct node_modules structure\n✓ Module aliases (@/components, @/types) resolve properly\n\nTested locally: Build completes successfully\nExpected Netlify output: 330+ packages installed (not 6)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
