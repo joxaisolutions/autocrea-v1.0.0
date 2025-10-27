@@ -2,8 +2,9 @@
 # Monorepo structure - frontend deployment
 
 [build]
-  command = "cd frontend && npm install && npm run build"
-  publish = "frontend/.next"
+  base = "frontend"
+  command = "npm install && npm run build"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
