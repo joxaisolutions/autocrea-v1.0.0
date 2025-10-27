@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Backend API Server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - CONVEX_URL=${CONVEX_URL}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - AI_MODEL=${AI_MODEL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+      - NETLIFY_TOKEN=${NETLIFY_TOKEN}
+      - RAILWAY_TOKEN=${RAILWAY_TOKEN}
+    restart: unless-stopped
+    networks:
+      - autocrea-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Code Execution Sandbox (Isolated Container)
+  code-sandbox:
+    image: node:20-alpine
+    command: sleep infinity
+    networks:
+      - autocrea-network
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/tmp
+    mem_limit: 512m
+    cpus: 0.5
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+
+networks:
+  autocrea-network:
+    driver: bridge
+
+volumes:
+  code-execution-tmp:
+    driver: local
