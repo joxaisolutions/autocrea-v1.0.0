@@ -8,7 +8,8 @@
       "Bash(netstat:*)",
       "Bash(findstr:*)",
       "Bash(curl:*)",
-      "Bash(npx convex dev --once)"
+      "Bash(npx convex dev --once)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
