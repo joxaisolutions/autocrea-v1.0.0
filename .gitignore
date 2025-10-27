@@ -79,3 +79,10 @@ next-env.d.ts
 
 # Local development
 .local/
+
+# Archive
+.archive/
+
+# Test coverage
+backend/coverage/
+frontend/coverage/
