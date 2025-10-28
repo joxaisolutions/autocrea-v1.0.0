@@ -1,11 +1,30 @@
+'use client';
+
 import { Suspense } from 'react';
 import { Plus, Code2, Zap, FolderKanban, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
+  const { user } = useUser();
+
+  // Fetch user's projects
+  const projects = useQuery(
+    api.projects.getUserProjects,
+    user ? { userId: user.id } : 'skip'
+  );
+
+  // Calculate stats
+  const totalProjects = projects?.length || 0;
+  const recentProjects = projects
+    ?.sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, 3) || [];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -14,7 +33,7 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
           <p className="text-gray-400 mt-1">Welcome back! Here's what's happening.</p>
         </div>
-        <Link href="/projects/new">
+        <Link href="/projects">
           <Button className="btn-primary">
             <Plus className="h-4 w-4 mr-2" />
             New Project
@@ -32,9 +51,9 @@ export default function DashboardPage() {
             <FolderKanban className="h-4 w-4 text-electric-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">0</div>
+            <div className="text-3xl font-bold">{totalProjects}</div>
             <p className="text-xs text-gray-400 mt-1">
-              3 projects remaining
+              {projects ? 'All your projects' : 'Loading...'}
             </p>
           </CardContent>
         </Card>
@@ -103,9 +122,34 @@ export default function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<ProjectsSkeleton />}>
+          {!projects ? (
+            <ProjectsSkeleton />
+          ) : recentProjects.length === 0 ? (
             <EmptyState />
-          </Suspense>
+          ) : (
+            <div className="space-y-4">
+              {recentProjects.map((project) => (
+                <Link
+                  key={project._id}
+                  href={`/editor/${project._id}`}
+                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-electric-500/5 transition-colors"
+                >
+                  <div className="h-12 w-12 rounded-lg bg-electric-500/20 flex items-center justify-center">
+                    <Code2 className="h-6 w-6 text-electric-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold truncate">{project.name}</h4>
+                    <p className="text-sm text-gray-400 truncate">
+                      {project.description || `${project.framework} project`}
+                    </p>
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {new Date(project.updatedAt).toLocaleDateString()}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 

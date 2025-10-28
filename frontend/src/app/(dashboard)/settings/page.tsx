@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@convex/_generated/api';
+import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,30 +14,86 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { User, Mail, Key, Bell, Code, Palette, Globe, Shield } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 export default function SettingsPage() {
-  const { toast } = useToast();
+  const { user } = useUser();
+
+  // Fetch user data from Convex
+  const userData = useQuery(
+    api.users.getUserByClerkId,
+    user ? { clerkId: user.id } : 'skip'
+  );
+
+  // Mutations
+  const updateUserMutation = useMutation(api.users.updateUser);
+  const updatePreferencesMutation = useMutation(api.users.updateUserPreferences);
+
+  // Local state
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [projectUpdates, setProjectUpdates] = useState(true);
   const [aiSuggestions, setAiSuggestions] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState('vs-dark');
   const [language, setLanguage] = useState('en');
-  const [editorFontSize, setEditorFontSize] = useState('14');
+  const [editorFontSize, setEditorFontSize] = useState(14);
 
-  const handleSaveProfile = () => {
-    toast({
-      title: "Profile Updated",
-      description: "Your profile settings have been saved successfully.",
-    });
+  // Load user data when available
+  useEffect(() => {
+    if (userData) {
+      setName(userData.name || '');
+      setEmail(userData.email || '');
+      if (userData.preferences) {
+        setAutoSave(userData.preferences.autoSave ?? true);
+        setTheme(userData.preferences.editorTheme || 'vs-dark');
+        setLanguage(userData.preferences.language || 'en');
+        setEditorFontSize(userData.preferences.fontSize || 14);
+      }
+    }
+  }, [userData]);
+
+  // Load from Clerk user
+  useEffect(() => {
+    if (user && !userData) {
+      setName(user.fullName || '');
+      setEmail(user.primaryEmailAddress?.emailAddress || '');
+    }
+  }, [user, userData]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+
+    try {
+      await updateUserMutation({
+        clerkId: user.id,
+        name: name || undefined,
+      });
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    }
   };
 
-  const handleSavePreferences = () => {
-    toast({
-      title: "Preferences Saved",
-      description: "Your preferences have been updated.",
-    });
+  const handleSavePreferences = async () => {
+    if (!user) return;
+
+    try {
+      await updatePreferencesMutation({
+        clerkId: user.id,
+        preferences: {
+          editorTheme: theme,
+          fontSize: editorFontSize,
+          autoSave,
+          language,
+        },
+      });
+      toast.success('Preferences saved successfully');
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      toast.error('Failed to save preferences');
+    }
   };
 
   return (
@@ -63,7 +123,8 @@ export default function SettingsPage() {
               <Input
                 id="name"
                 placeholder="John Doe"
-                defaultValue="Demo User"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="bg-navy-900/50 border-electric-500/20"
               />
             </div>
@@ -75,8 +136,9 @@ export default function SettingsPage() {
                   id="email"
                   type="email"
                   placeholder="john@example.com"
-                  defaultValue="demo@autocrea.dev"
-                  className="bg-navy-900/50 border-electric-500/20 pl-10"
+                  value={email}
+                  disabled
+                  className="bg-navy-900/50 border-electric-500/20 pl-10 opacity-50 cursor-not-allowed"
                 />
               </div>
             </div>
@@ -214,7 +276,7 @@ export default function SettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="font-size">Font Size</Label>
-              <Select value={editorFontSize} onValueChange={setEditorFontSize}>
+              <Select value={String(editorFontSize)} onValueChange={(val) => setEditorFontSize(Number(val))}>
                 <SelectTrigger className="bg-navy-900/50 border-electric-500/20">
                   <SelectValue />
                 </SelectTrigger>
