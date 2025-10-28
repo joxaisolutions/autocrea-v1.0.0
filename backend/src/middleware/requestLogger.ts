@@ -67,7 +67,7 @@ export const performanceMonitor = (
 export const errorLogger = (
   err: Error,
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   logger.error(`Error in ${req.method} ${req.path}`, {

@@ -117,8 +117,8 @@ class TerminalManager extends EventEmitter {
 
     try {
       // @ts-ignore - resize is available on pty processes
-      if (session.process.resize) {
-        session.process.resize(cols, rows);
+      if (typeof (session.process as any).resize === 'function') {
+        (session.process as any).resize(cols, rows);
       }
       return true;
     } catch (error) {

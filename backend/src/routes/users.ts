@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { authenticateUser } from '@/middleware/auth';
 import { asyncHandler } from '@/middleware/errorHandler';
-import { AppError } from '@/middleware/errorHandler';
 
 const router = Router();
 
@@ -90,9 +89,7 @@ router.put(
  */
 router.get(
   '/me/usage',
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Implement Convex queries to calculate usage
     const usage = {
       plan: 'free-trial',
@@ -128,7 +125,6 @@ router.get(
 router.put(
   '/me/preferences',
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
     const { editorTheme, fontSize, autoSave, language } = req.body;
 
     // TODO: Implement Convex mutation to update preferences
@@ -153,9 +149,7 @@ router.put(
  */
 router.post(
   '/me/sync',
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Fetch latest user data from Clerk
     // TODO: Update Convex database with synced data
 
@@ -172,9 +166,7 @@ router.post(
  */
 router.delete(
   '/me',
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Soft delete user in Convex
     // TODO: Archive all projects
     // TODO: Schedule data deletion after 30 days

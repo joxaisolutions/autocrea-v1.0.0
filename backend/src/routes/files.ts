@@ -17,7 +17,6 @@ router.get(
   '/:projectId',
   asyncHandler(async (req: Request, res: Response) => {
     const { projectId } = req.params;
-    const userId = req.userId!;
 
     // TODO: Verify project belongs to user
     // TODO: Implement Convex query to fetch files
@@ -62,7 +61,6 @@ router.get(
   '/:projectId/:fileId',
   asyncHandler(async (req: Request, res: Response) => {
     const { projectId, fileId } = req.params;
-    const userId = req.userId!;
 
     // TODO: Verify project belongs to user
     // TODO: Implement Convex query to fetch file
@@ -165,10 +163,7 @@ router.put(
  */
 router.delete(
   '/:projectId/:fileId',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { projectId, fileId } = req.params;
-    const userId = req.userId!;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Verify project belongs to user
     // TODO: Implement Convex mutation to delete file
 

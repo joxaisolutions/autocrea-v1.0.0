@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { clerkClient } from '@clerk/backend';
+import { createClerkClient, verifyToken } from '@clerk/backend';
+
+const clerkClient = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY,
+});
 
 // Extend Express Request to include user info
 declare global {
@@ -23,35 +27,37 @@ export const authenticateUser = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     // Extract token from Authorization header
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Unauthorized',
         message: 'Missing or invalid authorization header',
       });
+      return;
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Verify token with Clerk
     try {
-      const session = await clerkClient.sessions.verifySession(token, {
-        jwtKey: process.env.CLERK_SECRET_KEY,
+      const verifiedToken = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
       });
 
-      if (!session) {
-        return res.status(401).json({
+      if (!verifiedToken || !verifiedToken.sub) {
+        res.status(401).json({
           error: 'Unauthorized',
           message: 'Invalid or expired token',
         });
+        return;
       }
 
       // Get user information
-      const user = await clerkClient.users.getUser(session.userId);
+      const user = await clerkClient.users.getUser(verifiedToken.sub);
 
       // Attach user info to request
       req.userId = user.id;
@@ -64,17 +70,19 @@ export const authenticateUser = async (
       next();
     } catch (verifyError) {
       console.error('Token verification error:', verifyError);
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Unauthorized',
         message: 'Invalid or expired token',
       });
+      return;
     }
   } catch (error) {
     console.error('Authentication middleware error:', error);
-    return res.status(500).json({
+    res.status(500).json({
       error: 'Internal Server Error',
       message: 'Authentication failed',
     });
+    return;
   }
 };
 
@@ -84,26 +92,27 @@ export const authenticateUser = async (
  */
 export const optionalAuth = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // No token, continue without user info
-      return next();
+      next();
+      return;
     }
 
     const token = authHeader.substring(7);
 
     try {
-      const session = await clerkClient.sessions.verifySession(token, {
-        jwtKey: process.env.CLERK_SECRET_KEY,
+      const verifiedToken = await verifyToken(token, {
+        secretKey: process.env.CLERK_SECRET_KEY!,
       });
 
-      if (session) {
-        const user = await clerkClient.users.getUser(session.userId);
+      if (verifiedToken && verifiedToken.sub) {
+        const user = await clerkClient.users.getUser(verifiedToken.sub);
         req.userId = user.id;
         req.user = {
           id: user.id,

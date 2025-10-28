@@ -150,10 +150,7 @@ router.put(
  */
 router.delete(
   '/:id',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const userId = req.userId!;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Implement Convex mutation to delete project
     // Verify project belongs to user
     // Also delete all associated files

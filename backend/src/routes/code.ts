@@ -16,13 +16,11 @@ router.use(authenticateUser);
 router.post(
   '/execute',
   validateCodeExecution,
-  asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
-    const { code, language, projectId } = req.body;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Implement Docker container execution
     // TODO: Set up timeout and resource limits
     // TODO: Capture stdout, stderr, and exit code
+    // TODO: Use req.body.code, req.body.language, req.body.projectId
 
     // Mock response for now
     const output = {
@@ -48,7 +46,6 @@ router.post(
 router.post(
   '/validate',
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
     const { code, language } = req.body;
 
     if (!code || !language) {
@@ -80,7 +77,6 @@ router.post(
 router.post(
   '/format',
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
     const { code, language } = req.body;
 
     if (!code || !language) {
@@ -108,7 +104,6 @@ router.post(
 router.post(
   '/lint',
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
     const { code, language } = req.body;
 
     if (!code || !language) {
@@ -140,7 +135,6 @@ router.post(
 router.post(
   '/dependencies',
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.userId!;
     const { code, language } = req.body;
 
     if (!code || !language) {

@@ -4,7 +4,7 @@ import { AppError } from './errorHandler';
 /**
  * Validation middleware for project creation/update
  */
-export const validateProject = (req: Request, res: Response, next: NextFunction) => {
+export const validateProject = (req: Request, _res: Response, next: NextFunction) => {
   const { name, framework } = req.body;
 
   if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -26,7 +26,7 @@ export const validateProject = (req: Request, res: Response, next: NextFunction)
 /**
  * Validation middleware for file operations
  */
-export const validateFile = (req: Request, res: Response, next: NextFunction) => {
+export const validateFile = (req: Request, _res: Response, next: NextFunction) => {
   const { path, content } = req.body;
 
   if (!path || typeof path !== 'string' || path.trim().length === 0) {
@@ -54,7 +54,7 @@ export const validateFile = (req: Request, res: Response, next: NextFunction) =>
 /**
  * Validation middleware for AI requests
  */
-export const validateAIRequest = (req: Request, res: Response, next: NextFunction) => {
+export const validateAIRequest = (req: Request, _res: Response, next: NextFunction) => {
   const { type, prompt } = req.body;
 
   const validTypes = ['generate', 'explain', 'fix', 'refactor', 'complete'];
@@ -76,7 +76,7 @@ export const validateAIRequest = (req: Request, res: Response, next: NextFunctio
 /**
  * Validation middleware for deployment
  */
-export const validateDeployment = (req: Request, res: Response, next: NextFunction) => {
+export const validateDeployment = (req: Request, _res: Response, next: NextFunction) => {
   const { provider, environment } = req.body;
 
   const validProviders = ['vercel', 'netlify', 'railway'];
@@ -95,7 +95,7 @@ export const validateDeployment = (req: Request, res: Response, next: NextFuncti
 /**
  * Validation middleware for code execution
  */
-export const validateCodeExecution = (req: Request, res: Response, next: NextFunction) => {
+export const validateCodeExecution = (req: Request, _res: Response, next: NextFunction) => {
   const { code, language } = req.body;
 
   if (!code || typeof code !== 'string' || code.trim().length === 0) {

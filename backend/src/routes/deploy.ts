@@ -142,10 +142,7 @@ router.get(
  */
 router.delete(
   '/:deploymentId',
-  asyncHandler(async (req: Request, res: Response) => {
-    const { deploymentId } = req.params;
-    const userId = req.userId!;
-
+  asyncHandler(async (_req: Request, res: Response) => {
     // TODO: Verify deployment belongs to user's project
     // TODO: Cancel deployment if pending/building
     // TODO: Update deployment status in Convex
@@ -165,7 +162,6 @@ router.post(
   '/:deploymentId/rollback',
   asyncHandler(async (req: Request, res: Response) => {
     const { deploymentId } = req.params;
-    const userId = req.userId!;
 
     // TODO: Verify deployment belongs to user's project
     // TODO: Check if deployment is successful
@@ -195,7 +191,6 @@ router.get(
   '/:deploymentId/logs',
   asyncHandler(async (req: Request, res: Response) => {
     const { deploymentId } = req.params;
-    const userId = req.userId!;
 
     // TODO: Verify deployment belongs to user's project
     // TODO: Fetch logs from provider or Convex

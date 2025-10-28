@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -48,7 +48,7 @@ app.use(morgan('combined')); // HTTP request logger
 app.use(apiLimiter); // Rate limiting
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -58,7 +58,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // API info endpoint
-app.get('/api', (req: Request, res: Response) => {
+app.get('/api', (_req: Request, res: Response) => {
   res.json({
     message: 'AUTOCREA Backend API v1.0.0',
     version: '1.0.0',
@@ -94,7 +94,7 @@ io.on('connection', (socket) => {
       const { terminalManager } = require('./services/terminalService');
 
       terminalSessionId = socket.id;
-      const session = terminalManager.createSession(
+      terminalManager.createSession(
         terminalSessionId,
         data.userId,
         data.projectId,

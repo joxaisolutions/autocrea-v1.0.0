@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, Grid3x3, List, Search } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@convex/_generated/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,12 +14,29 @@ import { ProjectList } from '@/components/projects/project-list';
 import { CreateProjectDialog } from '@/components/projects/create-project-dialog';
 
 export default function ProjectsPage() {
+  const { user } = useUser();
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  // Mock projects - will be replaced with real data from Convex
-  const projects: any[] = [];
+  // Fetch projects from Convex
+  const allProjects = useQuery(
+    api.projects.getUserProjects,
+    user ? { userId: user.id } : 'skip'
+  );
+
+  // Filter projects based on search
+  const projects = useMemo(() => {
+    if (!allProjects) return [];
+    if (!search) return allProjects;
+
+    const searchLower = search.toLowerCase();
+    return allProjects.filter(
+      (project) =>
+        project.name.toLowerCase().includes(searchLower) ||
+        (project.description && project.description.toLowerCase().includes(searchLower))
+    );
+  }, [allProjects, search]);
 
   return (
     <div className="space-y-6">
@@ -64,12 +84,25 @@ export default function ProjectsPage() {
       </div>
 
       {/* Projects Display */}
-      {projects.length === 0 ? (
-        <EmptyState onCreateClick={() => setCreateDialogOpen(true)} />
+      {!allProjects ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="loading-spinner h-8 w-8 mx-auto mb-4" />
+            <p className="text-gray-400">Loading projects...</p>
+          </div>
+        </div>
+      ) : projects.length === 0 ? (
+        search ? (
+          <div className="glass rounded-2xl border border-electric-500/20 p-12 text-center">
+            <p className="text-gray-400">No projects found matching "{search}"</p>
+          </div>
+        ) : (
+          <EmptyState onCreateClick={() => setCreateDialogOpen(true)} />
+        )
       ) : view === 'grid' ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project: any) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project._id} project={project} />
           ))}
         </div>
       ) : (

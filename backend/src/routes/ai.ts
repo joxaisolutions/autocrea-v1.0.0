@@ -3,7 +3,6 @@ import { authenticateUser } from '@/middleware/auth';
 import { validateAIRequest } from '@/middleware/validation';
 import { aiLimiter } from '@/middleware/rateLimit';
 import { asyncHandler } from '@/middleware/errorHandler';
-import { AppError } from '@/middleware/errorHandler';
 
 const router = Router();
 
@@ -20,7 +19,7 @@ router.post(
   validateAIRequest,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = req.userId!;
-    const { prompt, context, projectId, language } = req.body;
+    const { prompt, context, projectId } = req.body;
 
     // TODO: Check user's AI request limits
     // TODO: Integrate with Anthropic Claude API
