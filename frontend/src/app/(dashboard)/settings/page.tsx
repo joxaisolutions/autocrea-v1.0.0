@@ -68,6 +68,7 @@ export default function SettingsPage() {
       await updateUserMutation({
         clerkId: user.id,
         name: name || undefined,
+        email: email || undefined,
       });
       toast.success('Profile updated successfully');
     } catch (error) {
@@ -82,6 +83,8 @@ export default function SettingsPage() {
     try {
       await updatePreferencesMutation({
         clerkId: user.id,
+        email: email || undefined,
+        name: name || undefined,
         preferences: {
           editorTheme: theme,
           fontSize: editorFontSize,

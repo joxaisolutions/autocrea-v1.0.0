@@ -69,22 +69,43 @@ export const createUser = mutation({
 });
 
 /**
- * Update user profile
+ * Update user profile - creates user if not found
  */
 export const updateUser = mutation({
   args: {
     clerkId: v.string(),
     name: v.optional(v.string()),
+    email: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db
+    let user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
 
+    // Auto-create user if not found
     if (!user) {
-      throw new Error("User not found");
+      const now = Date.now();
+      const userId = await ctx.db.insert("users", {
+        clerkId: args.clerkId,
+        email: args.email || "",
+        name: args.name || "User",
+        plan: "free-trial",
+        aiRequestsUsed: 0,
+        storageUsed: 0,
+        projectsCount: 0,
+        preferences: {
+          editorTheme: "vs-dark",
+          fontSize: 14,
+          autoSave: true,
+          language: "en",
+        },
+        createdAt: now,
+        updatedAt: now,
+        lastLoginAt: now,
+      });
+      return userId;
     }
 
     const updates: any = {
@@ -93,6 +114,7 @@ export const updateUser = mutation({
 
     if (args.name !== undefined) updates.name = args.name;
     if (args.avatarUrl !== undefined) updates.avatarUrl = args.avatarUrl;
+    if (args.email !== undefined) updates.email = args.email;
 
     await ctx.db.patch(user._id, updates);
 
@@ -101,11 +123,13 @@ export const updateUser = mutation({
 });
 
 /**
- * Update user preferences
+ * Update user preferences - creates user if not found
  */
 export const updateUserPreferences = mutation({
   args: {
     clerkId: v.string(),
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
     preferences: v.object({
       editorTheme: v.optional(v.string()),
       fontSize: v.optional(v.number()),
@@ -114,13 +138,33 @@ export const updateUserPreferences = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db
+    let user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .unique();
 
+    // Auto-create user if not found
     if (!user) {
-      throw new Error("User not found");
+      const now = Date.now();
+      const userId = await ctx.db.insert("users", {
+        clerkId: args.clerkId,
+        email: args.email || "",
+        name: args.name || "User",
+        plan: "free-trial",
+        aiRequestsUsed: 0,
+        storageUsed: 0,
+        projectsCount: 0,
+        preferences: {
+          editorTheme: args.preferences.editorTheme || "vs-dark",
+          fontSize: args.preferences.fontSize || 14,
+          autoSave: args.preferences.autoSave ?? true,
+          language: args.preferences.language || "en",
+        },
+        createdAt: now,
+        updatedAt: now,
+        lastLoginAt: now,
+      });
+      return userId;
     }
 
     await ctx.db.patch(user._id, {
