@@ -26,6 +26,9 @@ dotenv.config();
 const app: Application = express();
 const httpServer = createServer(app);
 
+// Trust proxy - Required for Railway and other reverse proxies
+app.set('trust proxy', 1);
+
 // Socket.IO server
 const io = new SocketIOServer(httpServer, {
   cors: {
